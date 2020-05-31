@@ -16,6 +16,7 @@ class Block:
         self.previous_hash = previous_hash
         self.hash = ""
         self.nonce = 0
+        self.block_chain_difficulty = 0
     
     def compute_hash(self) -> str:
         """
