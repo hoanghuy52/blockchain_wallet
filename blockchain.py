@@ -59,6 +59,7 @@ class Blockchain:
         if not self.is_vaild_proof(block, proof):
             return False
         block.hash = proof
+        self.chain.append(block)
         return True
 
     def add_new_transaction(self, transaction):
