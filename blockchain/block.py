@@ -14,8 +14,8 @@ class Block:
         self.transactions = transactions
         self.timestamp = timestamp
         self.previous_hash = previous_hash
-        # self.hash = ""
-        # self.nonce = 0
+        self.hash = ""
+        self.nonce = 0
         # self.block_chain_difficulty = 0
     
     def compute_hash(self) -> str:
@@ -23,8 +23,10 @@ class Block:
         Returns the hash of the block instance by first converting it
         into JSON string.
         """
+        delattr(self, "hash")
         block_string = json.dumps(self.__dict__, sort_keys=True)
-        return sha256(block_string.encode()).hexdigest()
+        self.hash = sha256(block_string.encode()).hexdigest()
+        return self.hash
 
     @staticmethod
     def compute_hash_from_dict(block):

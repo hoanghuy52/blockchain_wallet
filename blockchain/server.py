@@ -1,16 +1,20 @@
+import json
+import requests
+import time
 from flask import Flask, request
-from blockchain import Blockchain
+
 from block import Block
-import requests, time, json
+from blockchain import Blockchain
 
 # Initialize flask application
-app =  Flask(__name__)
+app = Flask(__name__)
 
 # Initialize a blockchain object.
 blockchain = Blockchain()
 
 # Contains the host addresses of other participating members of the network
 peers = set()
+
 
 # Endpoint to add new peers to the network
 @app.route('/register_node', methods=['POST'])
@@ -20,11 +24,15 @@ def register_new_peers():
     if not node_address:
         return "Invalid data", 400
 
+    # Return exist peers
+    d_peers = json.loads(get_peers())
+
     # Add the node to the peer list
     peers.add(node_address)
 
     # Return the blockchain to the newly registered node so that it can sync
-    return get_chain()
+    d_chains = json.loads(get_chain())
+    return {**d_chains, **d_peers}
 
 
 @app.route('/register_with', methods=['POST'])
@@ -59,6 +67,7 @@ def register_with_existing_node():
 
 
 def create_chain_from_dump(chain_dump):
+    global blockchain
     blockchain = Blockchain()
     for idx, block_data in enumerate(chain_dump):
         block = Block(block_data["index"],
@@ -73,6 +82,7 @@ def create_chain_from_dump(chain_dump):
         else:  # the block is a genesis block, no verification needed
             blockchain.chain.append(block)
     return blockchain
+
 
 def consensus():
     """
@@ -89,7 +99,7 @@ def consensus():
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
-              # Longer valid chain found!
+            # Longer valid chain found!
             current_len = length
             longest_chain = chain
 
@@ -98,6 +108,7 @@ def consensus():
         return True
 
     return False
+
 
 # endpoint to add a block mined by someone else to
 # the node's chain. The node first verifies the block
@@ -125,22 +136,39 @@ def announce_new_block(block):
     Other blocks can simply verify the proof of work and add it to their
     respective chains.
     """
+    headers = {'Content-Type': "application/json"}
     for peer in peers:
         url = "{}add_block".format(peer)
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers)
+
+
+def announce_new_transaction(transaction):
+    """
+    A function to announce to the network once a transaction is come.
+    """
+    headers = {'Content-Type': "application/json"}
+
+    for peer in peers:
+        url = "{}new_transaction".format(peer)
+        requests.post(url, data=json.dumps(transaction), headers=headers)
+
 
 @app.route("/new_transaction", methods=['POST'])
 def new_transaction():
     data = request.get_json()
-    requried_fields = ['author', 'content']
-    if not all(k in data for k in requried_fields):
+    print(data)
+    required_fields = ['author', 'content']
+    if not all(k in data for k in required_fields):
         return "Bad Request - Invalid transaction data", 400
-    
+
+    announce_new_transaction(data)
+
     data['timestamp'] = time.time()
 
     blockchain.add_new_transaction(data)
 
     return "Success", 201
+
 
 @app.route('/chain', methods=['GET'])
 def get_chain():
@@ -150,22 +178,40 @@ def get_chain():
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data})
 
+
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
     result = blockchain.mine()
     if not result:
         return "No transactions to mine"
-    return "Block #{} is mined.".format(result)
+    else:
+        # Making sure we have the longest chain before announcing to the network
+        chain_length = len(blockchain.chain)
+        consensus()
+        if chain_length == len(blockchain.chain):
+            # announce the recently mined block to the network
+            announce_new_block(blockchain.last_block)
+        return "Block #{} is mined.".format(blockchain.last_block.index)
+
 
 @app.route('/pending_tx')
 def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
+
 
 @app.route('/block/<int:id>/hash')
 def get_block_hash(id):
     t_dict = dict(blockchain.chain[id].__dict__)
     t_dict.pop('hash', None)
     return Block.compute_hash_from_dict(t_dict)
+
+
+@app.route('/peers')
+def get_peers():
+    return json.dumps({
+        "peers": list(peers)
+    })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
