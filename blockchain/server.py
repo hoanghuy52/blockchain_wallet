@@ -181,7 +181,7 @@ def announce_new_transaction(transaction):
 @app.route("/new_transaction", methods=['POST'])
 def new_transaction():
     data = request.get_json()
-    required_fields = ['author', 'content', 'signature']
+    required_fields = ['sender', 'receiver', 'amount', 'signature']
 
     if not all(k in data for k in required_fields):
         return "Bad Request - Invalid transaction data", 400
@@ -206,7 +206,7 @@ def new_transaction():
     verify.pop('signature', None)
     verify.pop('claim', None)
     try:
-        Signature.verify(verify['author'], signature, json.dumps(verify, sort_keys=True))
+        Signature.verify(verify['sender'], signature, json.dumps(verify, sort_keys=True))
         print("The transaction is authentic.")
     except ValueError:
         return "The transaction is not authentic.", 401
@@ -307,6 +307,10 @@ def add_private_key():
     save_private_key(private_key)
 
     return 'Success', 200
+
+@app.route('/key')
+def key():
+    return private_key
 
 
 if __name__ == '__main__':
