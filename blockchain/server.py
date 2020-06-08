@@ -5,6 +5,7 @@ from flask import Flask, request
 
 from block import Block
 from blockchain import Blockchain
+from signature import Signature
 
 # Initialize flask application
 app = Flask(__name__)
@@ -14,6 +15,10 @@ blockchain = Blockchain()
 
 # Contains the host addresses of other participating members of the network
 peers = set()
+
+# Private key and Public key
+private_key = None
+public_key = None
 
 
 # Endpoint to add new peers to the network
@@ -157,7 +162,7 @@ def announce_new_transaction(transaction):
 def new_transaction():
     data = request.get_json()
     print(data)
-    required_fields = ['author', 'content']
+    required_fields = ['author', 'content', 'signature']
     if not all(k in data for k in required_fields):
         return "Bad Request - Invalid transaction data", 400
 
@@ -210,6 +215,27 @@ def get_block_hash(id):
 def get_peers():
     return json.dumps({
         "peers": list(peers)
+    })
+
+
+@app.route('/generator')
+def generate_key():
+    _private_key, _public_key = Signature.generate()
+    return json.dumps({
+        "private_key": _private_key,
+        "public_key": _public_key,
+    })
+
+
+@app.route('/create_account')
+def create_account():
+    _private_key, _public_key = Signature.generate()
+    with open('private.key', 'w') as f:
+        f.write(_private_key)
+        f.close()
+    return json.dumps({
+        "private_key": _private_key,
+        "public_key": _public_key,
     })
 
 
