@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Blockchain Wallet</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="{{url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="{{url_for('static', filename='vendor/fontawesome/css/all.css')}}" rel="stylesheet">
+  <link href="{{url_for('static', filename='css/animate.css')}}" rel="stylesheet">
+  <link href="{{url_for('static', filename='css/blog-post.css')}}" rel="stylesheet">
+  <script defer src="{{url_for('static', filename='vendor/fontawesome/js/all.js')}}"></script>
+
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">Blockchain Wallet</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="speech.html">Speech</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="text.html">Text</a>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+    <!-- Title -->
+    <h3 class="mt-4">Create Wallet</h3>
+
+    <!-- Author -->
+    <small>
+        Read any text you type here.
+    </small>
+
+    <hr>
+
+    <!-- Post Content Column -->
+
+    
+    <form id="fileinfo" enctype="multipart/form-data" method="post" name="fileinfo">
+        <!-- <input id="file-input" type="file" name="file" style="display: none;" /> -->
+        <div class="form-group">
+            <label>Text (Vietnamese)</label>
+            <textarea class="form-control" id="text-input" name="text" rows="3"></textarea>
+        </div>
+        </form>
+    <button type="button" id="btn-submit" class="btn btn-primary"><i class="fas fa-volume-up mr-2"></i>Speech</button>
+</div>
+
+
+
+  <!-- /.container -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="{{url_for('static', filename='vendor/jquery/jquery.min.js')}}"></script>
+  <script src="{{url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+  <script src="{{url_for('static', filename='js/popper.min.js')}}"></script>
+  <script src="{{url_for('static', filename='js/jquery.toast.js')}}"></script>
+  <script src="{{url_for('static', filename='js/script.js')}}"></script>
+</body>
+
+</html>
