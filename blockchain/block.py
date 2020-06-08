@@ -2,7 +2,7 @@ from hashlib import sha256
 import json
 
 class Block:
-    def __init__(self, index: int, transactions: list, timestamp : int, previous_hash: str):
+    def __init__(self, index, transactions, timestamp, previous_hash, nonce=0):
         """
         Constructor for the `Block` class.
         :param index: Unique ID of the block.
@@ -15,7 +15,7 @@ class Block:
         self.timestamp = timestamp
         self.previous_hash = previous_hash
         self.hash = ""
-        self.nonce = 0
+        self.nonce = nonce
         # self.block_chain_difficulty = 0
     
     def compute_hash(self) -> str:
