@@ -2,7 +2,7 @@
 Simple Blockchain Wallet
 
 Hoàn thành phần back-end căn bản, chưa hoàn thành GUI
-Back-end:
+##### Back-end:
 - Proof of Work
 - Key-Pair (ECC)
 - Rebroadcast Transaction
